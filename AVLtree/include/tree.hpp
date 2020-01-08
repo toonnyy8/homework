@@ -7,10 +7,22 @@ public:
     binary_tree_node(Idx idx, Data &data)
     {
         (*this).idx = idx;
-        (*this).data = data
+        (*this).data = new Data(data);
     };
 
-private:
+    binary_tree_node &operator=(Data &data)
+    {
+        if (this == &data)
+        {
+            return *this;
+        }
+        else
+        {
+            delete (*this).data;
+            (*this).data = new Data(data);
+        }
+    }
+
     Idx idx;
     Data *data;
     binary_tree_node<Idx, Data> *left_ptr = nullptr;
@@ -22,30 +34,33 @@ class binary_tree
 {
 public:
     binary_tree(){};
+    binary_tree(Idx idx, Data data)
+    {
+        (*this).insert(idx, data);
+    };
 
-private:
     virtual void insert(Idx idx, Data data)
     {
-        binary_tree_node<Idx, Data> *parent = root;
+        binary_tree_node<Idx, Data> **parent = &(*this).root;
         while (true)
         {
-            if (parent == nullptr)
+            if (*parent == nullptr)
             {
-                parent = new binary_tree_node<Idx, Data>(idx, data);
+                *parent = (new binary_tree_node<Idx, Data>(idx, data));
                 break;
             }
-            if ((*parent).idx == idx)
+            if ((**parent).idx == idx)
             {
-                delete (*parent).data;
-                (*parent).data = data;
+                delete (**parent).data;
+                (**parent).data = new Data(data);
             }
-            else if ((*parent).idx > idx)
+            else if ((**parent).idx > idx)
             {
-                parent = (*parent).left_ptr
+                parent = &(**parent).left_ptr;
             }
-            else if ((*parent).idx < idx)
+            else if ((**parent).idx < idx)
             {
-                parent = (*parent).right_ptr
+                parent = &(**parent).right_ptr;
             }
         }
     };
@@ -55,6 +70,8 @@ private:
     virtual Data search(Idx idx){
 
     };
+
+private:
     binary_tree_node<Idx, Data> *root = nullptr;
 };
 
