@@ -12,6 +12,7 @@ int main()
     t.insert(-12, 3);
     t.insert(7, 7);
     t.insert(-2, 0);
+    t.remove(-12);
     std::cout << "end";
     system("PAUSE");
     return 0;
