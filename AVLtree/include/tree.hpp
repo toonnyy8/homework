@@ -2,22 +2,28 @@
 
 namespace tree
 {
+template <typename Pointer>
+Pointer &ptr(Pointer *data)
+{
+    return *data;
+}
+
 template <typename Idx, typename Data>
-class binary_tree_node
+class BSTree
 {
 public:
-    binary_tree_node(Idx idx, Data &data)
+    BSTree(Idx idx, Data data)
     {
-        (*this).idx = idx;
+        ptr(this).idx = idx;
         (*this).data = new Data(data);
     };
 
-    ~binary_tree_node()
+    ~BSTree()
     {
         std::cout << "delete";
     };
 
-    binary_tree_node &operator=(Data &data)
+    BSTree &operator=(Data &data)
     {
         if (this == &data)
         {
@@ -30,105 +36,105 @@ public:
         }
     }
 
-    Idx idx;
-    Data *data;
-    binary_tree_node<Idx, Data> *left_ptr = nullptr;
-    binary_tree_node<Idx, Data> *right_ptr = nullptr;
-};
-
-template <typename Idx, typename Data>
-class binary_tree
-{
-public:
-    binary_tree(){};
-    binary_tree(Idx idx, Data data)
-    {
-        (*this).insert(idx, data);
-    };
-
     virtual void insert(Idx idx, Data data)
     {
-        binary_tree_node<Idx, Data> **parent = &(*this).root;
-        while (true)
-        {
-            if (*parent == nullptr)
-            {
-                *parent = (new binary_tree_node<Idx, Data>(idx, data));
-                break;
-            }
-            if ((**parent).idx == idx)
-            {
-                delete (**parent).data;
-                (**parent).data = new Data(data);
-            }
-            else if ((**parent).idx > idx)
-            {
-                parent = &((**parent).left_ptr);
-            }
-            else if ((**parent).idx < idx)
-            {
-                parent = &((**parent).right_ptr);
-            }
-        }
+        (*this)._insert(idx, data);
+        return;
     };
-    virtual void remove(Idx idx)
+
+    // virtual void remove(Idx idx, Data data)
+    // {
+    //     return (*(*this)._insert(idx, data)).data;
+    // };
+
+    virtual Data search(Idx idx)
     {
-        binary_tree_node<Idx, Data> **parent = &(*this).root;
-        binary_tree_node<Idx, Data> **change_node = new binary_tree_node<Idx, Data> *();
-        binary_tree_node<Idx, Data> **temp = new binary_tree_node<Idx, Data> *();
+        return ptr(ptr(ptr(ptr(this)._search(idx))).data);
+    };
+
+protected:
+    BSTree **_insert(Idx idx, Data data)
+    {
+        BSTree<Idx, Data> **parent = ptr(this)._search(idx);
+        if (*parent == nullptr)
+        {
+            *parent = new BSTree<Idx, Data>(idx, data);
+        }
+        else if ((**parent).idx == idx)
+        {
+            delete (**parent).data;
+            (**parent).data = new Data(data);
+        }
+
+        return parent;
+    };
+
+    // BSTree **_remove(Idx idx)
+    // {
+    //     BSTree<Idx, Data> **parent = &(*this)._search(idx);
+    //     BSTree<Idx, Data> **change_node = new BSTree<Idx, Data> *();
+    //     BSTree<Idx, Data> **temp = new BSTree<Idx, Data> *();
+    //     while (true)
+    //     {
+    //         if (*parent == nullptr)
+    //         {
+    //             break;
+    //         }
+    //         if ((**parent).idx == idx)
+    //         {
+    //         }
+    //         else if ((**parent).idx > idx)
+    //         {
+    //             parent = &((**parent).left_ptr);
+    //         }
+    //         else if ((**parent).idx < idx)
+    //         {
+    //             parent = &((**parent).right_ptr);
+    //         }
+    //     }
+    // };
+
+    BSTree **_search(Idx idx)
+    {
+        BSTree<Idx, Data> *root = this;
+        BSTree<Idx, Data> **parent = &root;
+
         while (true)
         {
-            if (*parent == nullptr)
+            if (*parent == nullptr || (**parent).idx == idx)
             {
                 break;
             }
-            if ((**parent).idx == idx)
-            {
-                delete (**parent).data;
-                *change_node = (*parent);
-                if ((**change_node).left_ptr != nullptr)
-                {
-                    while (true)
-                    {
-                        if ((**change_node).right_ptr != nullptr)
-                        {
-                            change_node = &((**change_node).right_ptr);
-                        }
-                        else
-                        {
-                            *temp = (*parent);
-                            *parent = &(**change_node);
-                            delete change_node;
-                            delete *temp;
-                            delete temp;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    *temp = (*parent);
-                    *parent = ((**change_node).right_ptr);
-                    delete *temp;
-                    delete temp;
-                }
-            }
             else if ((**parent).idx > idx)
             {
-                parent = &((**parent).left_ptr);
+                parent = &(**parent).left_ptr;
             }
             else if ((**parent).idx < idx)
             {
-                parent = &((**parent).right_ptr);
+                parent = &(**parent).right_ptr;
             }
         }
-    };
-    virtual Data search(Idx idx){
-
+        return parent;
     };
 
-private:
-    binary_tree_node<Idx, Data> *root = nullptr;
+    Idx idx;
+    Data *data;
+    BSTree<Idx, Data> *left_ptr = nullptr;
+    BSTree<Idx, Data> *right_ptr = nullptr;
 };
 
+// template <typename Idx, typename Data>
+// class AVLTree : public BSTree<Idx, Data>
+// {
+// public:
+//     AVLTree(Idx idx, Data &data)
+//     {
+//         (*this).idx = idx;
+//         (*this).data = new Data(data);
+//     };
+//     ~AVLTree()
+//     {
+//         std::cout << "delete";
+//     };
+// };
 } // namespace tree
